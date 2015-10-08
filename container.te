@@ -1,0 +1,227 @@
+policy_module(container, 0.6)
+
+########################################
+#
+# Declarations
+#
+
+attribute_role container_process1_roles;
+roleattribute system_r container_process1_roles;
+
+attribute_role container_process2_roles;
+roleattribute system_r container_process2_roles;
+
+attribute_role container_process3_roles;
+roleattribute system_r container_process3_roles;
+
+attribute_role container_process4_roles;
+roleattribute system_r container_process4_roles;
+
+type container_t;
+files_type(container_t)
+
+type container_process1_t;
+type container_process1_etc_t;
+type container_process1_exec_t;
+type container_process1_data_t;
+type container_process1_var_run_t;
+role container_process1_roles types container_process1_t;
+
+type container_process2_t;
+type container_process2_etc_t;
+type container_process2_exec_t;
+type container_process2_data_t;
+type container_process2_var_run_t;
+role container_process2_roles types container_process2_t;
+
+type container_process3_t;
+type container_process3_etc_t;
+type container_process3_exec_t;
+type container_process3_data_t;
+type container_process3_var_run_t;
+role container_process3_roles types container_process3_t;
+
+type container_process4_t;
+type container_process4_etc_t;
+type container_process4_exec_t;
+type container_process4_data_t;
+type container_process4_var_run_t;
+role container_process4_roles types container_process4_t;
+
+#
+files_type(container_process1_t)
+files_type(container_process2_t)
+files_type(container_process3_t)
+files_type(container_process4_t)
+files_type(container_process1_data_t)
+files_type(container_process2_data_t)
+files_type(container_process3_data_t)
+files_type(container_process4_data_t)
+
+files_pid_file(container_process1_t)
+files_pid_file(container_process2_t)
+files_pid_file(container_process3_t)
+files_pid_file(container_process4_t)
+
+files_search_pids(container_process1_t)
+files_search_pids(container_process2_t)
+files_search_pids(container_process3_t)
+files_search_pids(container_process4_t)
+files_pid_filetrans(container_process1_t, container_process1_var_run_t, file)
+files_pid_filetrans(container_process2_t, container_process2_var_run_t, file)
+files_pid_filetrans(container_process3_t, container_process3_var_run_t, file)
+files_pid_filetrans(container_process4_t, container_process4_var_run_t, file)
+
+allow container_process1_t container_process1_var_run_t:file manage_file_perms;
+allow container_process2_t container_process2_var_run_t:file manage_file_perms;
+allow container_process3_t container_process3_var_run_t:file manage_file_perms;
+allow container_process4_t container_process4_var_run_t:file manage_file_perms;
+
+########################################
+#
+# container local policy
+#
+
+gen_require(`
+	role unconfined_r;
+	type unconfined_t;
+')
+
+role unconfined_r types { container_process1_t container_process2_t container_process3_t container_process4_t };
+
+# Allow domain transition
+application_domain(container_process1_t, container_process1_exec_t)
+application_domain(container_process2_t, container_process2_exec_t)
+application_domain(container_process3_t, container_process3_exec_t)
+application_domain(container_process4_t, container_process4_exec_t)
+
+domain_auto_trans(unconfined_t, container_process1_exec_t, container_process1_t)
+domain_auto_trans(unconfined_t, container_process2_exec_t, container_process2_t)
+domain_auto_trans(unconfined_t, container_process3_exec_t, container_process3_t)
+domain_auto_trans(unconfined_t, container_process4_exec_t, container_process4_t)
+
+
+# Allow processes to manages their own files
+allow container_process1_t self:fifo_file manage_fifo_file_perms;
+allow container_process1_t container_process1_data_t:fifo_file manage_fifo_file_perms;
+allow container_process1_t self:unix_stream_socket create_stream_socket_perms;
+
+allow container_process2_t self:fifo_file manage_fifo_file_perms;
+allow container_process2_t container_process2_data_t:fifo_file manage_fifo_file_perms;
+allow container_process2_t self:unix_stream_socket create_stream_socket_perms;
+
+allow container_process3_t self:fifo_file manage_fifo_file_perms;
+allow container_process3_t container_process3_data_t:fifo_file manage_fifo_file_perms;
+allow container_process3_t self:unix_stream_socket create_stream_socket_perms;
+
+allow container_process4_t self:fifo_file manage_fifo_file_perms;
+allow container_process4_t container_process4_data_t:fifo_file manage_fifo_file_perms;
+allow container_process4_t self:unix_stream_socket create_stream_socket_perms;
+
+
+#
+domain_use_interactive_fds(container_process1_t)
+domain_use_interactive_fds(container_process2_t)
+domain_use_interactive_fds(container_process3_t)
+domain_use_interactive_fds(container_process4_t)
+
+files_read_etc_files(container_process1_t)
+files_read_etc_files(container_process2_t)
+files_read_etc_files(container_process3_t)
+files_read_etc_files(container_process4_t)
+
+miscfiles_read_localization(container_process1_t)
+miscfiles_read_localization(container_process2_t)
+miscfiles_read_localization(container_process3_t)
+miscfiles_read_localization(container_process4_t)
+
+
+## Interprocess communication permissions
+# Allow file movement between process 1 and 2
+allow container_process1_t container_process2_data_t:file create_file_perms;
+allow container_process2_t container_process1_data_t:file create_file_perms;
+allow container_process1_t container_process2_data_t:dir rw_dir_perms;
+allow container_process2_t container_process1_data_t:dir rw_dir_perms;
+
+# Allow network access for process 3 and 4
+sysnet_dns_name_resolve(container_process3_t)
+sysnet_dns_name_resolve(container_process4_t)
+corenet_all_recvfrom_unlabeled(container_process3_t)
+corenet_all_recvfrom_unlabeled(container_process4_t)
+auth_use_nsswitch(container_process3_t)
+auth_use_nsswitch(container_process4_t)
+
+gen_require(`
+	type unreserved_port_t;
+')
+
+allow container_process3_t self:tcp_socket create_stream_socket_perms;
+corenet_tcp_sendrecv_generic_if(container_process3_t)
+corenet_tcp_sendrecv_generic_node(container_process3_t)
+corenet_tcp_sendrecv_all_ports(container_process3_t)
+corenet_tcp_bind_generic_node(container_process3_t)
+#corenet_tcp_bind_all_unreserved_ports(container_process3_t)
+
+allow container_process4_t self:tcp_socket create_stream_socket_perms;
+corenet_tcp_sendrecv_generic_if(container_process4_t)
+corenet_tcp_sendrecv_generic_node(container_process4_t)
+corenet_tcp_sendrecv_all_ports(container_process4_t)
+corenet_tcp_bind_generic_node(container_process4_t)
+#corenet_tcp_bind_all_unreserved_ports(container_process4_t)
+
+allow container_process3_t self:tcp_socket name_bind;
+allow container_process4_t self:tcp_socket name_bind;
+
+#allow container_process3_t unreserved_port_t:tcp_socket name_bind;
+#allow container_process4_t unreserved_port_t:tcp_socket name_bind;
+
+
+allow container_process3_t self:udp_socket create_stream_socket_perms;
+corenet_udp_sendrecv_generic_if(container_process3_t)
+corenet_udp_sendrecv_generic_node(container_process3_t)
+corenet_udp_sendrecv_all_ports(container_process3_t)
+corenet_udp_bind_generic_node(container_process3_t)
+#corenet_udp_bind_all_unreserved_ports(container_process3_t)
+
+allow container_process4_t self:udp_socket create_stream_socket_perms;
+corenet_udp_sendrecv_generic_if(container_process4_t)
+corenet_udp_sendrecv_generic_node(container_process4_t)
+corenet_udp_sendrecv_all_ports(container_process4_t)
+corenet_udp_bind_generic_node(container_process4_t)
+#corenet_udp_bind_all_unreserved_ports(container_process4_t)
+
+allow container_process3_t self:udp_socket name_bind;
+allow container_process4_t self:udp_socket name_bind;
+
+#allow container_process3_t unreserved_port_t:udp_socket name_bind;
+#allow container_process4_t unreserved_port_t:udp_socket name_bind;
+
+#
+dev_read_urand(container_process1_t)
+dev_read_urand(container_process2_t)
+dev_read_urand(container_process3_t)
+dev_read_urand(container_process4_t)
+
+kernel_read_kernel_sysctls(container_process1_t)
+kernel_read_system_state(container_process1_t)
+kernel_read_kernel_sysctls(container_process2_t)
+kernel_read_system_state(container_process2_t)
+kernel_read_kernel_sysctls(container_process3_t)
+kernel_read_system_state(container_process3_t)
+kernel_read_kernel_sysctls(container_process4_t)
+kernel_read_system_state(container_process4_t)
+
+domain_use_interactive_fds(container_process1_t)
+domain_use_interactive_fds(container_process2_t)
+domain_use_interactive_fds(container_process3_t)
+domain_use_interactive_fds(container_process4_t)
+
+seutil_read_config(container_process1_t)
+seutil_read_config(container_process2_t)
+seutil_read_config(container_process3_t)
+seutil_read_config(container_process4_t)
+
+userdom_use_inherited_user_ptys(container_process1_t)
+userdom_use_inherited_user_ptys(container_process2_t)
+userdom_use_inherited_user_ptys(container_process3_t)
+userdom_use_inherited_user_ptys(container_process4_t)
