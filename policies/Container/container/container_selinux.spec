@@ -13,7 +13,7 @@ Summary:	SELinux policy module for container
 
 Group:      System Environment/Base		
 License:	ISC
-URL:		http://github.com/Jeroen0494/SELinuxPolicies/tree/container
+URL:		http://github.com/Jeroen0494/SELinuxPolicies/
 Source0:	container.pp
 Source1:	container.if
 #Source2:	container_selinux.8

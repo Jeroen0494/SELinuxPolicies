@@ -2,19 +2,17 @@
 
 
 %define relabel_files() \
-restorecon -R /opt/soapserver/server.py; \
-restorecon -R /opt/soapserver; \
+restorecon -R ${PWD}/soapserver.sh
 
 %define selinux_policyver 3.13.1-23
 
-Name:   soapserver_selinux
+Name:       soapserver_selinux
 Version:	1.0
 Release:	1%{?dist}
 Summary:	SELinux policy module for soapserver
 
-Group:	System Environment/Base		
-License:	GPLv2
-# This was an example. I changed it.
+Group:	    System Environment/Base		
+License:	ISC
 URL:		https://github.com/Jeroen0494/SELinuxPolicies/
 Source0:	soapserver.pp
 Source1:	soapserver.if

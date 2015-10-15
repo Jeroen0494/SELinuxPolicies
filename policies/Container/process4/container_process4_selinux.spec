@@ -2,18 +2,18 @@
 
 
 %define relabel_files() \
-restorecon -R /usr/src/gitprojects/SELinuxPolicies/container.sh; \
+restorecon -R ${PWD}container_process4.sh; \
 
 %define selinux_policyver 3.13.1-23
 
 Name:       container_process4_selinux
 Version:	1.0
 Release:	1%{?dist}
-Summary:	SELinux policy module for container
+Summary:	SELinux policy module for container_process4
 
-Group:      System Environment/Base		
-License:	ISC
-URL:		http://github.com/Jeroen0494/SELinuxPolicies/tree/container
+Group:	    System Environment/Base		
+License:	ICS
+URL:		https://github.com/Jeroen0494/SELinuxPolicies/
 Source0:	container_process4.pp
 Source1:	container_process4.if
 Source2:	container_process4_selinux.8

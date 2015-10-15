@@ -11,10 +11,9 @@ Version:	0.1
 Release:	1%{?dist}
 Summary:	SELinux policy module for mlsuser
 
-Group:	System Environment/Base		
-License:	GPLv2
-# This is an example. You will need to change it.
-URL:		https://github.com/Jeroen0494/SELinuxPolicies/tree/mlsuser
+Group:	    System Environment/Base		
+License:	ICS
+URL:		https://github.com/Jeroen0494/SELinuxPolicies/
 Source0:	mlsuser.pp
 Source1:	mlsuser.if
 Source2:	mlsuser_selinux.8
