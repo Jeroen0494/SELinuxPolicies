@@ -1,0 +1,135 @@
+#!/bin/sh -e
+
+init() {
+# This just tells iptables to apply the same label to incoming packets as it did on outgoing
+    echo $IPTABLES -F -t security
+    echo $IPTABLES -t security -A INPUT -m state --state ESTABLISHED,RELATED -j CONNSECMARK --restore
+ 
+# Apply a label even if its on another port but is related
+    echo $IPTABLES -t security -A OUTPUT -m state --state ESTABLISHED,RELATED -j CONNSECMARK --restore
+    echo 
+    return
+
+}
+
+start() {
+    # Create a chain for each class of packets we have.
+    echo "$IPTABLES -t security -X $NAME 2> /dev/null"
+    echo "$IPTABLES -t security -N $NAME"
+}
+
+fini() {
+    # Label all other packets going internally to $TYPE:$MCS
+    echo $IPTABLES -t security -A $NAME -j SECMARK --selctx system_u:object_r:$TYPE:$MCS
+    echo $IPTABLES -t security -A $NAME -j CONNSECMARK --save
+    echo $IPTABLES -t security -A $NAME -j ACCEPT
+    echo 
+}
+
+setup_network() {
+
+    if [ ! -z "$PORTS" ]; then
+	if [ ! -z "$NETWORK" ]; then
+            # Send packets going to an $NET httpd to the $NAME chain
+	    echo $IPTABLES -A OUTPUT -t security -p $PROTOCOL -d $NETWORK --dport $PORTS -j $NAME
+	    echo $IPTABLES -A INPUT -t security -p $PROTOCOL -d $NETWORK --sport $PORTS -j $NAME
+	else
+            # Send packets going to $PORTS httpd to the $NAME chain
+	    echo $IPTABLES -A OUTPUT -t security -p $PROTOCOL --dport $PORTS -j $NAME
+	    echo $IPTABLES -A INPUT -t security -p $PROTOCOL --sport $PORTS -j $NAME
+	fi
+    elif [ ! -z "$NETWORK" ]; then
+            # Send packets going to $PORT httpd to the $NAME chain
+	    echo $IPTABLES -A OUTPUT -t security -d $NETWORK -j $NAME
+	    echo $IPTABLES -A INPUT -t security -s $NETWORK -j $NAME
+    else
+	echo $IPTABLES -A OUTPUT -t security -j $NAME
+	echo $IPTABLES -A INPUT -t security -j $NAME
+    fi
+}
+usage() {
+      	 $"""
+Usage: $0 -i
+Usage: $0 -T iptablescmd -P protocol -p port[:...] -N network[,...] -t selinux_type -m MCS NAME
+Usage: $0 -f NAME
+"""
+}
+
+echo
+echo "###################################################################"
+echo "# $0 $*"
+echo "###################################################################"
+echo
+IPTABLES=iptables
+NAME=
+PORTS=
+MCS=s0
+NETWORK=
+TYPE=client_packet_t
+PROTOCOL=tcp
+FINISH=0
+START=0
+INIT=0
+
+while getopts "sfin:p:m:t:T:P:" i; do
+    case "$i" in
+	i)
+	    INIT=1
+	    ;;
+	s)
+	    START=1
+	    ;;
+	f)
+	    FINISH=1
+	    ;;
+	P)
+	    PROTOCOL=$OPTARG
+	    ;;
+	T)
+	    IPTABLES=$OPTARG
+	    ;;
+	n)
+	    export NETWORK=$OPTARG
+	    ;;
+	t)
+	    export TYPE=$OPTARG
+	    ;;
+	p)
+	    export PORTS=$OPTARG
+	    ;;
+	m)
+	    export MCS=$OPTARG
+	    ;;
+	*)
+	    usage
+	    exit 1
+esac
+done
+
+# Init does not require a NAME
+if [ $INIT == 1 ]; then 
+    init
+    exit $?
+fi
+
+# Move out processed options from arguments
+shift $(( OPTIND - 1 ))
+
+NAME=$1
+
+if [ -z "$NAME" -o -z "$MCS" -o -z "$NAME" ]; then
+	usage
+	exit 1
+fi
+
+if [ $START == 1 ]; then 
+    start
+    exit $?
+fi
+
+if [ $FINISH == 1 ]; then 
+    fini
+    exit $?
+fi
+
+setup_network

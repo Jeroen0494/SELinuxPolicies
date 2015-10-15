@@ -1,0 +1,61 @@
+########################################
+## <summary>
+##  Execute $1 in the container_process2 domain.
+## </summary>
+## <param name="domain">
+##  <summary>
+##   Domain allowed access.
+##  </summary>
+## </param>
+#
+interface(`cp2_domstrans',`
+	gen_require(`
+		type container_process2_t, container_process2_exec_t;
+	')
+	
+	corecmd_search_bin($1)
+	domtrans_pattern($1, container_process2_exec_t, container_process2_t)
+')
+
+########################################
+## <summary>
+##  Execute container_process2 in the container_process2 domain.
+## </summary>
+## <param name="domain">
+##  <summary>
+##   Allow role within domain.
+##  </summary>
+## </param>
+#
+interface(`cp2_run',`
+	gen_require(`
+		type container_process2_t;
+		attribute_role container_process2_roles;
+	')
+	
+	container_process2_domtrans($1)
+	roleattribute $2 container_process2_roles;
+')
+
+########################################
+## <summary>
+##  Manage container_process2_data_t files and directories.
+## </summary>
+## <param name="domain">
+##  <summary>
+##   Directory and file access allowed.
+##  </summary>
+## </param>
+#
+interface(`cp2_manage_data_files',`
+	gen_require(`
+		type container_process2_t;
+		type container_process2_data_t;
+	')
+	
+	read_files_pattern($1, container_process2_t, container_process2_t)
+	allow $1 container_process2_t:dir list_dir_perms;
+	
+	manage_files_pattern($1, container_process2_data_t, container_process2_data_t)
+	manage_dirs_pattern($1, container_process2_data_t, container_process2_data_t)
+')

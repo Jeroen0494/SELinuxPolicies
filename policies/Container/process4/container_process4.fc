@@ -1,0 +1,4 @@
+/opt/container/process4(/.*)?				gen_context(system_u:object_r:container_process4_t,s0)
+/opt/container/process4/process4t3		--	gen_context(system_u:object_r:container_process4_exec_t,s0)
+/opt/container/process4/etc(/.*)?			gen_context(system_u:object_r:container_process4_etc_t,s0)
+/opt/container/process4/data(/.*)?			gen_context(system_u:object_r:container_process4_data_t,s0)

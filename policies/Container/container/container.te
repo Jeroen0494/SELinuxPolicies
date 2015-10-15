@@ -1,0 +1,54 @@
+policy_module(container, 0.7)
+
+########################################
+#
+# Declarations
+#
+
+# File access declarations
+type container_t;
+files_type(container_t)
+
+# Network access declarations
+type container_port_t;
+corenet_port(container_port_t)
+type container_packet_t;
+corenet_packet(container_packet_t)
+
+gen_require(`
+	attribute domain;
+	attribute sysadm_usertype;
+	attribute staff_usertype;
+	attribute telepathy_domain;
+	
+	type ping_t;
+	type ssh_t;
+	type vpnc_t;
+	type ntpd_t;
+	type sssd_t;
+	type nsplugin_t;
+')
+
+
+# Type Definitions
+attribute external_packet;
+type internal_packet_t;
+corenet_packet(internal_packet_t)
+type dns_external_packet_t, external_packet;
+corenet_packet(dns_external_packet_t)
+type external_packet_t, external_packet;
+corenet_packet(external_packet_t)
+
+# Allow Rules
+allow domain internal_packet_t:packet { recv send };
+allow sysadm_usertype external_packet:packet { recv send };
+allow staff_usertype external_packet:packet { recv send };
+
+allow vpnc_t external_packet:packet { recv send };
+allow ssh_t external_packet:packet { recv send };
+allow nsplugin_t external_packet:packet { recv send };
+allow telepathy_domain external_packet:packet { recv send };
+allow ping_t external_packet:packet { recv send };
+allow ntpd_t external_packet:packet { recv send };
+dontaudit sssd_t dns_external_packet_t:packet { recv send };
+

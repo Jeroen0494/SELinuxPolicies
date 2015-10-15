@@ -1,0 +1,85 @@
+policy_module(container_process3, 0.4)
+
+########################################
+#
+# Declarations
+#
+
+attribute_role container_process3_roles;
+roleattribute system_r container_process3_roles;
+
+gen_require(`
+	type container_t;
+')
+
+allow container_process3_t container_t:dir { getattr ioctl read search };
+allow container_process3_t container_t:file { getattr ioctl read };
+
+type container_process3_t;
+type container_process3_etc_t;
+type container_process3_exec_t;
+type container_process3_data_t;
+type container_process3_var_run_t;
+role container_process3_roles types container_process3_t;
+
+#
+files_type(container_process3_t)
+files_type(container_process3_data_t)
+files_type(container_process3_etc_t)
+
+files_pid_file(container_process3_t)
+
+files_search_pids(container_process3_t)
+files_pid_filetrans(container_process3_t, container_process3_var_run_t, file)
+
+allow container_process3_t container_process3_var_run_t:file manage_file_perms;
+
+########################################
+#
+# container local policy
+#
+
+# Allow domain transition
+gen_require(`
+	type unconfined_t;
+	role unconfined_r;
+')
+
+role unconfined_r types container_process3_t;
+application_domain(container_process3_t, container_process3_exec_t)
+domain_auto_trans(unconfined_t, container_process3_exec_t, container_process3_t)
+
+
+# Allow processes to manages their own files
+allow container_process3_t self:fifo_file manage_fifo_file_perms;
+allow container_process3_t container_process3_data_t:fifo_file manage_fifo_file_perms;
+allow container_process3_t self:unix_stream_socket create_stream_socket_perms;
+
+manage_dirs_pattern(container_process3_t, container_process3_data_t, container_process3_data_t)
+manage_files_pattern(container_process3_t, container_process3_data_t, container_process3_data_t)
+manage_lnk_files_pattern(container_process3_t, container_process3_data_t, container_process3_data_t)
+
+
+#
+domain_use_interactive_fds(container_process3_t)
+
+files_read_etc_files(container_process3_t)
+miscfiles_read_localization(container_process3_t)
+
+
+# Interprocess communication permissions
+container_network_access(container_process3_t)
+
+
+#
+dev_read_urand(container_process3_t)
+
+kernel_read_kernel_sysctls(container_process3_t)
+kernel_read_system_state(container_process3_t)
+
+domain_use_interactive_fds(container_process3_t)
+
+seutil_read_config(container_process3_t)
+
+userdom_use_inherited_user_ptys(container_process3_t)
+

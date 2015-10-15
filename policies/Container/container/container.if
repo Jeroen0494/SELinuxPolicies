@@ -1,0 +1,34 @@
+########################################
+## <summary>
+##  Provide network functionality.
+## </summary>
+## <param name="domain">
+##  <summary>
+##   Allow processes that make use of this interface network access via the container_packet_t.
+##  </summary>
+## </param>
+#
+interface(`container_network_access',`
+	gen_require(`
+		type container_port_t;
+		type container_packet_t;
+	')
+	
+	# Network access
+	sysnet_dns_name_resolve($1)
+	corenet_all_recvfrom_unlabeled($1)
+	auth_use_nsswitch($1)
+	
+	allow $1 self:tcp_socket create_stream_socket_perms;
+	corenet_tcp_sendrecv_generic_if($1)
+	corenet_tcp_sendrecv_generic_node($1)
+	corenet_tcp_sendrecv_all_ports($1)
+	corenet_tcp_bind_generic_node($1)
+	allow $1 container_port_t:tcp_socket name_bind;
+	allow $1 container_port_t:tcp_socket name_connect;
+	corenet_tcp_bind_all_rpc_ports(container_port_t)
+	
+	# Packet sending
+	allow $1 container_packet_t:packet { recv send };
+')
+

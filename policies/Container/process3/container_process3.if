@@ -1,0 +1,38 @@
+########################################
+## <summary>
+##  Execute $1 in the container_process3 domain.
+## </summary>
+## <param name="domain">
+##  <summary>
+##   Domain allowed access.
+##  </summary>
+## </param>
+#
+interface(`container_process3_domstrans',`
+	gen_require(`
+		type container_process3_t, container_process3_exec_t;
+	')
+	
+	corecmd_search_bin($1)
+	domtrans_pattern($1, container_process3_exec_t, container_process3_t)
+')
+#
+########################################
+## <summary>
+##  Execute container_process3 in the container_process3 domain.
+## </summary>
+## <param name="domain">
+##  <summary>
+##   Allow role within domain.
+##  </summary>
+## </param>
+#
+interface(`container_process3_run',`
+	gen_require(`
+		type container_process3_t;
+		attribute_role container_process3_roles;
+	')
+	
+	container_process3_domtrans($1)
+	roleattribute $2 container_process3_roles;
+')
