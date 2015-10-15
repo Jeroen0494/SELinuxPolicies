@@ -7,8 +7,8 @@ restorecon -R /usr/src/gitprojects/SELinuxPolicies/container.sh; \
 %define selinux_policyver 3.13.1-23
 
 Name:       container_process2_selinux
-Version:	0.6
-Release:	2%{?dist}
+Version:	1.0
+Release:	1%{?dist}
 Summary:	SELinux policy module for container
 
 Group:      System Environment/Base		
@@ -64,6 +64,6 @@ exit 0
 
 
 %changelog
-* Tue Sep 15 2015 Jeroen Rijken <Jeroen.Rijken@nl.thalesgroup.com> 0.6-2
-- Attempt to fix permission denied on data_t
+* Thu Oct 15 2015 Jeroen Rijken <Jeroen.Rijken@nl.thalesgroup.com> 1.0-1
+- Final release
 

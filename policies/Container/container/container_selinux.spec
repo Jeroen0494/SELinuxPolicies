@@ -7,7 +7,7 @@ restorecon -R /usr/src/gitprojects/SELinuxPolicies/container.sh; \
 %define selinux_policyver 3.13.1-23
 
 Name:       container_selinux
-Version:	0.7
+Version:	1.0
 Release:	1%{?dist}
 Summary:	SELinux policy module for container
 
@@ -64,6 +64,6 @@ exit 0
 
 
 %changelog
-* Tue Sep 15 2015 Jeroen Rijken <Jeroen.Rijken@nl.thalesgroup.com> 0.7-1
-- Fix process4 tcp name_bind error
+* Thu Oct 15 2015 Jeroen Rijken <Jeroen.Rijken@nl.thalesgroup.com> 1.0-1
+- Final release
 

@@ -1,4 +1,4 @@
-policy_module(container_process2, 0.6)
+policy_module(container_process2, 1.0)
 
 ########################################
 #

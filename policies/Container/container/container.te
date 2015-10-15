@@ -1,4 +1,4 @@
-policy_module(container, 0.7)
+policy_module(container, 1.0)
 
 ########################################
 #
