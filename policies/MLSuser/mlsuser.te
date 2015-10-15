@@ -1,0 +1,34 @@
+policy_module(mlsuser, 0.1)
+
+###########################
+#
+# Declarations
+#
+
+attribute_role mlsuser_roles;
+roleattribute user_r mlsuser_roles;
+type data_t;
+require {
+	user_t;
+}
+user secret_u;
+user topsecret_u;
+user unclassified_u;
+
+gen_require(`
+	user user_u;
+	role user_r;
+')
+sensitivity s3 alias unclassified;
+sensitivity s8 alias secret;
+sensitivity s13 alias topsecret;
+
+level unclassified:c0.c1023;
+level secret:c0.c1023;
+level topsecret:c0.c1023;
+
+dominance { unclassified secret topsecret };
+
+allow user_t data_t:file create_file_perms;
+allow user_t data_t:dir create_dir_perms;
+

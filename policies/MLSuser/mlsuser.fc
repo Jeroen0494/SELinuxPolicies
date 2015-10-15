@@ -1,0 +1,5 @@
+/data			gen_context(user_u:user_r:data_t:s0)
+/data/secret		gen_context(secret_u:user_r:data_t:s8)
+/data/topsecret		gen_context(topsecret_u:user_r:data_t:s13)
+/data/unclassified	gen_context(unclassified_u:user_r:data_t:s3)
+/data/public		gen_context(user_u:user_r:data_t:s0)

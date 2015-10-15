@@ -1,0 +1,191 @@
+
+## <summary>policy for soapserver</summary>
+
+########################################
+## <summary>
+##	Execute TEMPLATE in the soapserver domin.
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain allowed to transition.
+## </summary>
+## </param>
+#
+interface(`soapserver_domtrans',`
+	gen_require(`
+		type soapserver_t, soapserver_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, soapserver_exec_t, soapserver_t)
+')
+
+########################################
+## <summary>
+##	Search soapserver rw directories.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`soapserver_search_rw_dir',`
+	gen_require(`
+		type soapserver_rw_t;
+	')
+
+	allow $1 soapserver_rw_t:dir search_dir_perms;
+	files_search_rw($1)
+')
+
+########################################
+## <summary>
+##	Read soapserver rw files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`soapserver_read_rw_files',`
+	gen_require(`
+		type soapserver_rw_t;
+	')
+
+	read_files_pattern($1, soapserver_rw_t, soapserver_rw_t)
+	allow $1 soapserver_rw_t:dir list_dir_perms;
+	files_search_rw($1)
+')
+
+########################################
+## <summary>
+##	Manage soapserver rw files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`soapserver_manage_rw_files',`
+	gen_require(`
+		type soapserver_rw_t;
+	')
+
+	manage_files_pattern($1, soapserver_rw_t, soapserver_rw_t)
+')
+
+########################################
+## <summary>
+##	Create, read, write, and delete
+##	soapserver rw dirs.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`soapserver_manage_rw_dirs',`
+	gen_require(`
+		type soapserver_rw_t;
+	')
+
+	manage_dirs_pattern($1, soapserver_rw_t, soapserver_rw_t)
+')
+
+
+########################################
+## <summary>
+##	Execute soapserver in the soapserver domain, and
+##	allow the specified role the soapserver domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed to transition
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	The role to be allowed the soapserver domain.
+##	</summary>
+## </param>
+#
+interface(`soapserver_run',`
+	gen_require(`
+		type soapserver_t;
+		attribute_role soapserver_roles;
+	')
+
+	soapserver_domtrans($1)
+	roleattribute $2 soapserver_roles;
+')
+
+########################################
+## <summary>
+##	Role access for soapserver
+## </summary>
+## <param name="role">
+##	<summary>
+##	Role allowed access
+##	</summary>
+## </param>
+## <param name="domain">
+##	<summary>
+##	User domain for the role
+##	</summary>
+## </param>
+#
+interface(`soapserver_role',`
+	gen_require(`
+		type soapserver_t;
+		attribute_role soapserver_roles;
+	')
+
+	roleattribute $1 soapserver_roles;
+
+	soapserver_domtrans($2)
+
+	ps_process_pattern($2, soapserver_t)
+	allow $2 soapserver_t:process { signull signal sigkill };
+')
+
+########################################
+## <summary>
+##	All of the rules required to administrate
+##	an soapserver environment
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	Role allowed access.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`soapserver_admin',`
+	gen_require(`
+		type soapserver_t;
+		type soapserver_rw_t;
+	')
+
+	allow $1 soapserver_t:process { signal_perms };
+	ps_process_pattern($1, soapserver_t)
+
+    tunable_policy(`deny_ptrace',`',`
+        allow $1 soapserver_t:process ptrace;
+    ')
+
+	files_search_etc($1)
+	admin_pattern($1, soapserver_rw_t)
+	optional_policy(`
+		systemd_passwd_agent_exec($1)
+		systemd_read_fifo_file_passwd_run($1)
+	')
+')

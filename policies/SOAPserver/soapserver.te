@@ -1,0 +1,94 @@
+policy_module(soapserver, 3.4)
+
+########################################
+#
+# Declarations
+#
+
+attribute_role soapserver_roles;
+roleattribute system_r soapserver_roles;
+
+type soapserver_t;
+type soapserver_exec_t;
+type soapserver_rw_t;
+type soapserver_var_run_t;
+
+# Default file label
+files_type(soapserver_rw_t)
+
+# Allow creation of pid file
+files_pid_file(soapserver_var_run_t)
+files_search_pids(soapserver_t)
+files_pid_filetrans(soapserver_t, soapserver_var_run_t, file)
+allow soapserver_t soapserver_var_run_t : file manage_file_perms ;
+
+########################################
+#
+# soapserver local policy
+#
+
+## Process and files part ##
+# Permit domain transition
+gen_require(`
+	type unconfined_t;
+	role unconfined_r;
+')
+
+role unconfined_r types soapserver_t;
+application_domain(soapserver_t, soapserver_exec_t)
+domain_auto_trans(unconfined_t, soapserver_exec_t, soapserver_t)
+
+# Allow administration over created files
+allow soapserver_t self:fifo_file manage_fifo_file_perms;
+allow soapserver_t self:unix_stream_socket create_stream_socket_perms;
+
+manage_dirs_pattern(soapserver_t, soapserver_rw_t, soapserver_rw_t)
+manage_files_pattern(soapserver_t, soapserver_rw_t, soapserver_rw_t)
+manage_lnk_files_pattern(soapserver_t, soapserver_rw_t, soapserver_rw_t)
+
+
+## Networking part ##
+# Allow name lookup
+sysnet_dns_name_resolve(soapserver_t)
+corenet_all_recvfrom_unlabeled(soapserver_t)
+auth_use_nsswitch(soapserver_t)
+
+# Allow TCP binding
+allow soapserver_t self:tcp_socket create_stream_socket_perms;
+corenet_tcp_sendrecv_generic_if(soapserver_t)
+corenet_tcp_sendrecv_generic_node(soapserver_t)
+corenet_tcp_sendrecv_all_ports(soapserver_t)
+corenet_tcp_bind_generic_node(soapserver_t)
+corenet_tcp_bind_all_unreserved_ports(soapserver_t)
+
+gen_require(`
+    type unreserved_port_t;
+')
+allow soapserver_t unreserved_port_t:tcp_socket name_bind;
+
+# Allow UDP binding
+allow soapserver_t self:udp_socket { create_socket_perms listen };
+corenet_udp_sendrecv_generic_if(soapserver_t)
+corenet_udp_sendrecv_generic_node(soapserver_t)
+corenet_udp_sendrecv_all_ports(soapserver_t)
+corenet_udp_bind_generic_node(soapserver_t)
+corenet_udp_bind_all_unreserved_ports(soapserver_t)
+
+allow soapserver_t unreserved_port_t:udp_socket name_bind;
+
+
+## System part ##
+# Not sure what this does, something with getty and tty:
+domain_use_interactive_fds(soapserver_t)
+
+# Allow access to urandom
+gen_require(`
+	type urandom_device_t;
+	class chr_file read;
+')
+allow soapserver_t urandom_device_t:chr_file getattr;
+
+# Allow kernel tracking
+kernel_read_system_state(soapserver_t)
+userdom_use_inherited_user_ptys(soapserver_t)
+

@@ -1,0 +1,6 @@
+
+/opt/soapserver			gen_context(system_u:object_r:soapserver_t,s0)
+
+/opt/soapserver(/.*)?		gen_context(system_u:object_r:soapserver_rw_t,s0)
+
+/opt/soapserver/server.py		--	gen_context(system_u:object_r:soapserver_exec_t,s0)
