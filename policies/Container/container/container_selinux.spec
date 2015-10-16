@@ -8,7 +8,7 @@ restorecon -R /usr/src/gitprojects/SELinuxPolicies/container.sh; \
 
 Name:       container_selinux
 Version:	1.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	SELinux policy module for container
 
 Group:      System Environment/Base		
@@ -64,6 +64,6 @@ exit 0
 
 
 %changelog
-* Thu Oct 15 2015 Jeroen Rijken <Jeroen.Rijken@nl.thalesgroup.com> 1.0-1
-- Final release
+* Thu Oct 15 2015 Jeroen Rijken <Jeroen.Rijken@nl.thalesgroup.com> 1.0-2
+- Fix chronyd permissions
 

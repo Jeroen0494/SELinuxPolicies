@@ -1,4 +1,4 @@
-policy_module(container, 1.0)
+policy_module(container, 1.1)
 
 ########################################
 #
@@ -24,7 +24,10 @@ gen_require(`
 	type ping_t;
 	type ssh_t;
 	type vpnc_t;
+	
 	type ntpd_t;
+	type chronyd_t;
+	
 	type sssd_t;
 	type nsplugin_t;
 ')
@@ -50,5 +53,6 @@ allow nsplugin_t external_packet:packet { recv send };
 allow telepathy_domain external_packet:packet { recv send };
 allow ping_t external_packet:packet { recv send };
 allow ntpd_t external_packet:packet { recv send };
+allow chronyd_t external_packet:packet { recv send };
 dontaudit sssd_t dns_external_packet_t:packet { recv send };
 
