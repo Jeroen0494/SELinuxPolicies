@@ -20,11 +20,18 @@ iptables -4 -t security -N EXTERNAL
 iptables -4 -t security -A INPUT -m state --state ESTABLISHED,RELATED -j CONNSECMARK --restore
 iptables -4 -t security -A OUTPUT -m state --state ESTABLISHED,RELATED -j CONNSECMARK --restore
 
+# Define and mark CONTAINER
+iptables -4 -A OUTPUT -t security -p tcp --dport 8888 -j CONTAINER
+iptables -4 -A INPUT -t security -p tcp --sport 8888 -j CONTAINER
+
+iptables -4 -t security -A CONTAINER -j SECMARK --selctx system_u:object_r:container_packet_t:s0
+iptables -4 -t security -A CONTAINER -j CONNSECMARK --save
+iptables -4 -t security -A CONTAINER -j ACCEPT
+
 # Define and mark INTERNAL
 iptables -4 -A OUTPUT -t security -d $INTERNAL -j INTERNAL
 iptables -4 -A INPUT -t security -s $INTERNAL -j INTERNAL
 
-iptables -4 -t security -A INTERNAL -p tcp --dport 8888 -j CONTAINER # Inserted for testing purposes
 iptables -4 -t security -A INTERNAL -j SECMARK --selctx system_u:object_r:internal_packet_t:s0
 iptables -4 -t security -A INTERNAL -j CONNSECMARK --save
 iptables -4 -t security -A INTERNAL -j ACCEPT
@@ -43,19 +50,9 @@ iptables -4 -t security -A DNS -j ACCEPT
 iptables -4 -A OUTPUT -t security -j EXTERNAL
 iptables -4 -A INPUT -t security -j EXTERNAL
 
-iptables -4 -t security -A EXTERNAL -p tcp --dport 8888 -j CONTAINER # This is what works in reality
 iptables -4 -t security -A EXTERNAL -j SECMARK --selctx system_u:object_r:external_packet_t:s0
 iptables -4 -t security -A EXTERNAL -j CONNSECMARK --save
 iptables -4 -t security -A EXTERNAL -j ACCEPT
-
-
-# Define and mark CONTAINER
-iptables -4 -A OUTPUT -t security -j CONTAINER
-iptables -4 -A INPUT -t security -j CONTAINER
-
-iptables -4 -t security -A CONTAINER -j SECMARK --selctx system_u:object_r:container_packet_t:s0
-iptables -4 -t security -A CONTAINER -j CONNSECMARK --save
-iptables -4 -t security -A CONTAINER -j ACCEPT
 
 
 
