@@ -7,8 +7,8 @@ restorecon -R ${PWD}container_process2.sh; \
 %define selinux_policyver 3.13.1-23
 
 Name:       container_process2_selinux
-Version:	1.0
-Release:	1%{?dist}
+Version:	1.1
+Release:	2%{?dist}
 Summary:	SELinux policy module for container_process2
 
 Group:	    System Environment/Base		
@@ -64,6 +64,10 @@ exit 0
 
 
 %changelog
+* Fri Oct 16 2015 Jeroen Rijken <Jeroen.Rijken@nl.thalesgroup.com> 1.1-2
+- Fix allow file rule
+* Fri Oct 16 2015 Jeroen Rijken <Jeroen.Rijken@nl.thalesgroup.com> 1.1-1
+- Create tunable policy for reading etc files
 * Thu Oct 15 2015 Jeroen Rijken <Jeroen.Rijken@nl.thalesgroup.com> 1.0-1
 - Final release
 
