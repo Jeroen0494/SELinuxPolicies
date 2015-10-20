@@ -77,6 +77,11 @@ tunable_policy(`cp2_read_etc_files',`
 	allow container_process2_t container_process2_etc_t:file { getattr ioctl read open };
 ')
 
+# Allow cron daemon to execute this program
+optional_policy(`
+	cron_system_entry(container_process2_t, container_process2_exec_t)
+')
+
 #
 dev_read_urand(container_process2_t)
 

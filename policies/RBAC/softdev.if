@@ -1,0 +1,20 @@
+
+## <summary>policy for softdev</summary>
+########################################
+## <summary>
+##	Change to the softdev role.
+## </summary>
+## <param name="role">
+##	<summary>
+##	Role allowed access.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`softdev_role_change',`
+	gen_require(`
+		role softdev_r;
+	')
+
+	allow $1 softdev_r;
+')

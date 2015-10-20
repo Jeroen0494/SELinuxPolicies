@@ -1,0 +1,6 @@
+softdev_r:softdev_t:s0	softdev_r:softdev_t
+system_r:crond_t		softdev_r:softdev_t
+system_r:initrc_su_t		softdev_r:softdev_t
+system_r:local_login_t		softdev_r:softdev_t
+system_r:remote_login_t		softdev_r:softdev_t
+system_r:sshd_t			softdev_r:softdev_t

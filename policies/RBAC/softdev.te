@@ -1,0 +1,24 @@
+policy_module(softdev, 0.2)
+
+##########################
+#
+# Declarations
+#
+type devbuild_t;
+files_type(devbuild_t)
+
+userdom_unpriv_user_template(softdev)
+
+##########################
+#
+# Definitions
+#
+
+# Define some additional priviledges here
+
+miscfiles_read_localization(softdev_t)
+
+manage_dirs_pattern(softdev_t, devbuild_t, devbuild_t)
+manage_files_pattern(softdev_t, devbuild_t, devbuild_t)
+manage_lnk_files_pattern(softdev_t, devbuild_t, devbuild_t)
+
